@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/pizza-hunt');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/social-network-api');
 
 // Use this to log mongo queries being executed!
 mongoose.set('debug', true);
