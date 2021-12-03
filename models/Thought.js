@@ -1,63 +1,77 @@
-const { Schema, model, Types } = require('mongoose');
-const dateFormat = require('../utils/dateFormat');
+// Require Mongoos and Moment
+const { Schema, model, Types } = require("mongoose");
+const moment = require("moment");
 
-const ReactionSchema = new Schema(
-    {
-        reactionId: { 
-            type: Schema.Types.ObjectId,
-            default: Types.ObjectId
+// ReactionsSchema
+const ReactionsSchema = new Schema(
+  {
+    // Set custom ID
+    reactionId: {
+      type: Schema.Types.ObjectId,
+      default: () => new Types.ObjectId(),
     },
     reactionBody: {
-        type: String,
-        required: true,
-        max: 280
+      type: String,
+      required: true,
+      maxlength: 280,
     },
     username: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     createdAt: {
-        type: Date,
-        default: Date.now,
-        get: createdAtVal => dateFormat(createdAtVal)
-    }
-},
-{
+      type: Date,
+      default: Date.now,
+      get: (createdAtVal) =>
+        moment(createdAtVal).format("MMM DD, YYYY [at] hh:mm a"),
+    },
+  },
+  {
     toJSON: {
-        getters: true,
-    }
-});
-        
-
-
-
-const ThoughtSchema = new Schema(
-    {
-        thoughtText: {
-            type: String,
-            min: 1,
-            max: 280,
-            required: true
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now,
-            get: createdAtVal => dateFormat(createdAtVal)
-        },
-        reactions: [ReactionSchema]
+      getters: true,
     },
-    {
-        toJSON: {
-            virtuals: true,
-            getters: true
+  }
+);
+
+// ThoughtsSchema
+const ThoughtsSchema = new Schema(
+  {
+    thoughtText: {
+      type: String,
+      required: true,
+      minlength: 1,
+      maxlength: 280,
     },
-    id: false
-});
-    
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      // Moment
+      get: (createdAtVal) =>
+        moment(createdAtVal).format("MMM DD, YYYY [at] hh:mm a"),
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    // Use ReactionsSchema to validate data
+    reactions: [ReactionsSchema],
+  },
+  {
+    toJSON: {
+      virtuals: true,
+      getters: true,
+    },
+    id: false,
+  }
+);
 
-ThoughtSchema.virtual('reactionCount',).get(function() {
-    return this.reactions.length;
+// get total count of reactions
+ThoughtsSchema.virtual("reactionCount").get(function () {
+  return this.reactions.length;
 });
 
-const Thought = model('Thought', ThoughtSchema);
-module.exports = Thought;
+// create the Thoughts model using the Thoughts Schema
+const Thoughts = model("Thoughts", ThoughtsSchema);
+
+// Export Thoughts Module
+module.exports = Thoughts;
